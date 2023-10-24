@@ -1,43 +1,19 @@
-cmake_minimum_required(VERSION 3.5)
-project(osr_interfaces)
+import rospy
+from sensor_msgs.msg import BatteryState
 
-# Default to C99
-if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 99)
-endif()
+def battery_state_publisher():
+    rospy.init_node('battery_state_publisher')
+    pub = rospy.Publisher('battery_state_topic', BatteryState, queue_size=10)
+    rate = rospy.Rate(1)  # Publish at 1 Hz
 
-# Default to C++14
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-endif()
+    while not rospy.is_shutdown():
+        battery_msg = BatteryState()
+        # Populate battery_msg with appropriate data
+        pub.publish(battery_msg)
+        rate.sleep()
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
-
-# find dependencies
-find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
-
-find_package(rosidl_default_generators REQUIRED)
-
-rosidl_generate_interfaces(${PROJECT_NAME}
-    "msg/Status.msg"
-    "msg/CommandDrive.msg"
-    "msg/CommandCorner.msg"
-)
-
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
-
-ament_package()
+if __name__ == '__main__':
+    try:
+        battery_state_publisher()
+    except rospy.ROSInterruptException:
+        pass
